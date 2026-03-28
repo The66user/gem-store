@@ -17,8 +17,10 @@ function AdminProducts() {
   // 表单状态
   const [formName, setFormName] = useState('');
   const [formDesc, setFormDesc] = useState('');
+  const [formDetail, setFormDetail] = useState('');
   const [formPrice, setFormPrice] = useState('');
   const [formOriginal, setFormOriginal] = useState('');
+  const [formType, setFormType] = useState<'digital' | 'service'>('digital');
 
   const loadProducts = useCallback(async () => {
     try {
@@ -37,8 +39,10 @@ function AdminProducts() {
     setEditing(null);
     setFormName('');
     setFormDesc('');
+    setFormDetail('');
     setFormPrice('');
     setFormOriginal('');
+    setFormType('digital');
     setShowModal(true);
   }
 
@@ -46,8 +50,10 @@ function AdminProducts() {
     setEditing(p);
     setFormName(p.name);
     setFormDesc(p.description);
+    setFormDetail(p.detailDescription || '');
     setFormPrice(String(p.price));
     setFormOriginal(p.originalPrice ? String(p.originalPrice) : '');
+    setFormType(p.productType || 'digital');
     setShowModal(true);
   }
 
@@ -59,16 +65,20 @@ function AdminProducts() {
         await updateProduct(editing.id, {
           name: formName,
           description: formDesc,
+          detailDescription: formDetail,
           price: Number(formPrice),
           originalPrice: formOriginal ? Number(formOriginal) : undefined,
+          productType: formType,
         });
         setMsg('更新成功');
       } else {
         await createProduct({
           name: formName,
           description: formDesc,
+          detailDescription: formDetail,
           price: Number(formPrice),
           originalPrice: formOriginal ? Number(formOriginal) : undefined,
+          productType: formType,
         });
         setMsg('创建成功');
       }
@@ -102,6 +112,7 @@ function AdminProducts() {
               <tr>
                 <th>ID</th>
                 <th>名称</th>
+                <th>类型</th>
                 <th>售价</th>
                 <th>原价</th>
                 <th>库存</th>
@@ -114,6 +125,11 @@ function AdminProducts() {
                 <tr key={p.id}>
                   <td>{p.id}</td>
                   <td>{p.name}</td>
+                  <td>
+                    <span className={`badge ${p.productType === 'service' ? 'badge-info' : 'badge-muted'}`}>
+                      {p.productType === 'service' ? '服务' : '数字'}
+                    </span>
+                  </td>
                   <td>¥{p.price.toFixed(2)}</td>
                   <td>{p.originalPrice ? `¥${p.originalPrice.toFixed(2)}` : '-'}</td>
                   <td>{p.stockCount}</td>
@@ -143,12 +159,23 @@ function AdminProducts() {
             <h2>{editing ? '编辑商品' : '新建商品'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
+                <label>商品类型 *</label>
+                <select className="input" value={formType} onChange={e => setFormType(e.target.value as 'digital' | 'service')}>
+                  <option value="digital">数字商品（自动发卡）</option>
+                  <option value="service">服务商品（人工处理）</option>
+                </select>
+              </div>
+              <div className="form-group">
                 <label>商品名称 *</label>
                 <input className="input" value={formName} onChange={e => setFormName(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label>商品描述</label>
-                <textarea className="input" value={formDesc} onChange={e => setFormDesc(e.target.value)} rows={4} />
+                <label>商品简介</label>
+                <textarea className="input" value={formDesc} onChange={e => setFormDesc(e.target.value)} rows={2} placeholder="商品卡片上显示的短描述" />
+              </div>
+              <div className="form-group">
+                <label>详细说明</label>
+                <textarea className="input" value={formDetail} onChange={e => setFormDetail(e.target.value)} rows={4} placeholder="商品详情页显示的完整说明" />
               </div>
               <div className="form-group">
                 <label>售价 (CNY) *</label>
