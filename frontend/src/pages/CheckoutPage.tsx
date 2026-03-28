@@ -6,6 +6,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchProduct, createOrder, mockPay, queryOrder, checkPaymentStatus } from '../services/api';
 import type { Product, Order, CreateOrderResponse } from '../types';
 import { ORDER_STATUS_MAP } from '../types';
+import Navbar from '../components/Navbar';
 
 /** 轮询间隔（毫秒） */
 const POLL_INTERVAL = 3000;
@@ -130,15 +131,7 @@ function CheckoutPage() {
 
   return (
     <>
-      <header className="header">
-        <div className="container">
-          <Link to="/" className="header-logo"><img src="/logo.png" alt="The66Shop" style={{ height: '38px', verticalAlign: 'middle', marginRight: '8px' }} />The66Shop</Link>
-          <nav className="header-nav">
-            <Link to="/">首页</Link>
-            <Link to="/order">订单查询</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="container">
         {step === 'form' && (

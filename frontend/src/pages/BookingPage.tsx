@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { submitBooking } from '../services/api';
+import Navbar from '../components/Navbar';
 
 /** 可预约的服务类型列表 */
 const SERVICE_TYPES = [
@@ -61,20 +62,7 @@ function BookingPage() {
 
   return (
     <>
-      {/* Header */}
-      <header className="header">
-        <div className="container">
-          <Link to="/" className="header-logo">
-            <img src="/logo.png" alt="The66Shop" style={{ height: '38px', verticalAlign: 'middle', marginRight: '8px' }} />
-            The66Shop
-          </Link>
-          <nav className="header-nav">
-            <Link to="/">首页</Link>
-            <Link to="/booking" className="active">服务预约</Link>
-            <Link to="/order">订单查询</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="container">
         <div className="booking-form">

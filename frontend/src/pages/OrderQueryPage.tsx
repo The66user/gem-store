@@ -3,10 +3,11 @@
  * 支持：订单号查询、邮箱查询、本地缓存历史订单、URL 参数自动查询
  */
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { queryOrder, claimWarranty, queryOrdersByEmail } from '../services/api';
 import type { Order } from '../types';
 import { ORDER_STATUS_MAP } from '../types';
+import Navbar from '../components/Navbar';
 
 /** localStorage 中保存历史订单的 key */
 const HISTORY_STORAGE_KEY = 'gemstore_order_history';
@@ -203,15 +204,7 @@ function OrderQueryPage() {
 
   return (
     <>
-      <header className="header">
-        <div className="container">
-          <Link to="/" className="header-logo"><img src="/logo.png" alt="The66Shop" style={{ height: '38px', verticalAlign: 'middle', marginRight: '8px' }} />The66Shop</Link>
-          <nav className="header-nav">
-            <Link to="/">首页</Link>
-            <Link to="/order" className="active">订单查询</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="container">
         <div className="query-box">

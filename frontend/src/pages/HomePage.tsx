@@ -3,9 +3,10 @@
  * NOTE: 页面措辞需符合虎皮椒合规要求，不得出现"发卡/卡密/自动发货"等字样
  */
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { fetchProducts } from '../services/api';
 import type { Product } from '../types';
+import Navbar from '../components/Navbar';
 
 function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -21,19 +22,7 @@ function HomePage() {
 
   return (
     <>
-      {/* Header */}
-      <header className="header">
-        <div className="container">
-          <span className="header-logo"><img src="/logo.png" alt="The66Shop" style={{ height: '38px', verticalAlign: 'middle', marginRight: '8px' }} />The66Shop</span>
-          <nav className="header-nav">
-            <Link to="/" className="active">首页</Link>
-            <a href="#about">关于我</a>
-            <Link to="/booking">服务预约</Link>
-            <a href="#contact">联系方式</a>
-            <Link to="/order">订单查询</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar showAnchorLinks />
 
       {/* Hero */}
       <section className="hero">

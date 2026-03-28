@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchProducts } from '../services/api';
 import type { Product } from '../types';
+import Navbar from '../components/Navbar';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,21 +21,7 @@ export default function ProductsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
-      {/* 导航栏 */}
-      <nav className="navbar">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
-            <img src="/logo.png" alt="logo" style={{ height: '28px', marginRight: '8px' }} />
-            <span>The66Shop</span>
-          </Link>
-          <div style={{ display: 'flex', gap: 'var(--space-lg)' }}>
-            <Link to="/" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none', fontSize: 'var(--font-size-sm)' }}>首页</Link>
-            <Link to="/products" style={{ color: 'var(--color-accent)', textDecoration: 'none', fontSize: 'var(--font-size-sm)', fontWeight: 600 }}>全部商品</Link>
-            <Link to="/booking" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none', fontSize: 'var(--font-size-sm)' }}>服务预约</Link>
-            <Link to="/order" style={{ color: 'var(--color-text-secondary)', textDecoration: 'none', fontSize: 'var(--font-size-sm)' }}>订单查询</Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* 商品列表 */}
       <section className="container" style={{ paddingTop: 'var(--space-xl)' }}>
