@@ -193,6 +193,86 @@ select.input option {
   font-size: var(--font-size-sm);
 }
 
+/* -- 自定义下拉选择框 -- */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  min-height: 44px;
+  text-align: left;
+}
+.custom-select-trigger:hover {
+  border-color: var(--color-accent);
+  background: rgba(46, 204, 113, 0.03);
+}
+.custom-select.open .custom-select-trigger {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+  background: #fff;
+}
+.custom-select-trigger .placeholder {
+  color: var(--color-text-muted);
+}
+.custom-select-arrow {
+  color: var(--color-accent);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.custom-select.open .custom-select-arrow {
+  transform: rotate(180deg);
+}
+.custom-select-options {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  list-style: none;
+  z-index: 100;
+  animation: selectDropdown 0.15s ease-out;
+}
+@keyframes selectDropdown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.custom-select-option {
+  padding: 10px 16px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.custom-select-option:hover {
+  background: rgba(46, 204, 113, 0.08);
+  color: var(--color-accent);
+}
+.custom-select-option.selected {
+  background: rgba(46, 204, 113, 0.12);
+  color: var(--color-accent);
+  font-weight: 600;
+}
 /* -- 卡片 -- */
 .card {
   background: var(--color-bg-card);

@@ -7,6 +7,7 @@ import { fetchCards, importCards, fetchAdminProducts } from '../../services/api'
 import type { Card, Product } from '../../types';
 import { CARD_STATUS_MAP } from '../../types';
 import AdminLayout from './AdminLayout';
+import CustomSelect from '../../components/CustomSelect';
 
 function AdminCards() {
   const [cards, setCards] = useState<Card[]>([]);
@@ -79,13 +80,16 @@ function AdminCards() {
     <AdminLayout title="交付内容管理">
       <div className="toolbar">
         <div className="toolbar-filters">
-          <select className="input" value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPage(1); }}
-            style={{ width: 'auto', minWidth: 140 }}>
-            <option value="">全部状态</option>
-            <option value="available">可用</option>
-            <option value="sold">已售</option>
-            <option value="replaced">已换新</option>
-          </select>
+          <CustomSelect
+            options={[
+              { value: '', label: '全部状态' },
+              { value: 'available', label: '可用' },
+              { value: 'sold', label: '已售' },
+              { value: 'replaced', label: '已换新' },
+            ]}
+            value={filterStatus}
+            onChange={(val) => { setFilterStatus(val); setPage(1); }}
+          />
           <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
             共 {total} 条
           </span>
@@ -148,12 +152,15 @@ function AdminCards() {
             <form onSubmit={handleImport}>
               <div className="form-group">
                 <label>选择商品 *</label>
-                <select className="input" value={importProductId} onChange={e => setImportProductId(e.target.value)} required>
-                  <option value="">请选择</option>
-                  {products.map(p => (
-                    <option key={p.id} value={p.id}>{p.name} (ID: {p.id})</option>
-                  ))}
-                </select>
+                <CustomSelect
+                  options={[
+                    { value: '', label: '请选择' },
+                    ...products.map(p => ({ value: String(p.id), label: `${p.name} (ID: ${p.id})` }))
+                  ]}
+                  value={importProductId}
+                  onChange={(val) => setImportProductId(val)}
+                  placeholder="请选择商品"
+                />
               </div>
               <div className="form-group">
                 <label>交付内容 *（每行一条，如：邮箱:密码:辅助邮箱 或自定义内容）</label>

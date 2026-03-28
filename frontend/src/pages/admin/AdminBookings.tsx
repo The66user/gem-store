@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from './AdminLayout';
+import CustomSelect from '../../components/CustomSelect';
 import { fetchBookings, updateBookingStatus } from '../../services/api';
 import type { Booking, PaginatedResponse } from '../../types';
 import { BOOKING_STATUS_MAP } from '../../types';
@@ -76,15 +77,17 @@ function AdminBookings() {
       {/* 工具栏 */}
       <div className="toolbar">
         <div className="toolbar-filters">
-          <select className="input" style={{ width: '160px' }}
+          <CustomSelect
+            options={[
+              { value: '', label: '全部状态' },
+              { value: 'pending', label: '待处理' },
+              { value: 'confirmed', label: '已确认' },
+              { value: 'completed', label: '已完成' },
+              { value: 'cancelled', label: '已取消' },
+            ]}
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}>
-            <option value="">全部状态</option>
-            <option value="pending">待处理</option>
-            <option value="confirmed">已确认</option>
-            <option value="completed">已完成</option>
-            <option value="cancelled">已取消</option>
-          </select>
+            onChange={(val) => setStatusFilter(val)}
+          />
         </div>
         <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
           共 {data.total} 条预约
@@ -171,12 +174,16 @@ function AdminBookings() {
 
             <div className="form-group">
               <label>状态</label>
-              <select className="input" value={editStatus} onChange={e => setEditStatus(e.target.value)}>
-                <option value="pending">待处理</option>
-                <option value="confirmed">已确认</option>
-                <option value="completed">已完成</option>
-                <option value="cancelled">已取消</option>
-              </select>
+              <CustomSelect
+                options={[
+                  { value: 'pending', label: '待处理' },
+                  { value: 'confirmed', label: '已确认' },
+                  { value: 'completed', label: '已完成' },
+                  { value: 'cancelled', label: '已取消' },
+                ]}
+                value={editStatus}
+                onChange={(val) => setEditStatus(val)}
+              />
             </div>
 
             <div className="form-group">

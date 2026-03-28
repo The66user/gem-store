@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchAdminProducts, createProduct, updateProduct } from '../../services/api';
 import type { Product } from '../../types';
 import AdminLayout from './AdminLayout';
+import CustomSelect from '../../components/CustomSelect';
 
 function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -160,10 +161,14 @@ function AdminProducts() {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>商品类型 *</label>
-                <select className="input" value={formType} onChange={e => setFormType(e.target.value as 'digital' | 'service')}>
-                  <option value="digital">数字商品（自动发卡）</option>
-                  <option value="service">服务商品（人工处理）</option>
-                </select>
+                <CustomSelect
+                  options={[
+                    { value: 'digital', label: '数字商品（自动发卡）' },
+                    { value: 'service', label: '服务商品（人工处理）' },
+                  ]}
+                  value={formType}
+                  onChange={(val) => setFormType(val as 'digital' | 'service')}
+                />
               </div>
               <div className="form-group">
                 <label>商品名称 *</label>

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { submitBooking } from '../services/api';
 import Navbar from '../components/Navbar';
+import CustomSelect from '../components/CustomSelect';
 
 /** 可预约的服务类型列表 */
 const SERVICE_TYPES = [
@@ -115,16 +116,12 @@ function BookingPage() {
                   <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xs)' }}>
                     服务类型 <span style={{ color: 'var(--color-danger)' }}>*</span>
                   </label>
-                  <select
-                    className="input"
+                  <CustomSelect
+                    options={SERVICE_TYPES.map(type => ({ value: type, label: type }))}
                     value={form.serviceType}
-                    onChange={e => handleChange('serviceType', e.target.value)}
-                  >
-                    <option value="">请选择服务类型</option>
-                    {SERVICE_TYPES.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleChange('serviceType', val)}
+                    placeholder="请选择服务类型"
+                  />
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 'var(--space-xl)' }}>

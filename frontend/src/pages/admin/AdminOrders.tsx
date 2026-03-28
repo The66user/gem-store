@@ -7,6 +7,7 @@ import { fetchOrders } from '../../services/api';
 import type { Order } from '../../types';
 import { ORDER_STATUS_MAP } from '../../types';
 import AdminLayout from './AdminLayout';
+import CustomSelect from '../../components/CustomSelect';
 
 function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -51,13 +52,16 @@ function AdminOrders() {
     <AdminLayout title="订单管理">
       <div className="toolbar">
         <div className="toolbar-filters">
-          <select className="input" value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPage(1); }}
-            style={{ width: 'auto', minWidth: 140 }}>
-            <option value="">全部状态</option>
-            <option value="pending">待支付</option>
-            <option value="delivered">已发货</option>
-            <option value="warranty_claimed">已换新</option>
-          </select>
+          <CustomSelect
+            options={[
+              { value: '', label: '全部状态' },
+              { value: 'pending', label: '待支付' },
+              { value: 'delivered', label: '已发货' },
+              { value: 'warranty_claimed', label: '已换新' },
+            ]}
+            value={filterStatus}
+            onChange={(val) => { setFilterStatus(val); setPage(1); }}
+          />
           <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
             共 {total} 条
           </span>
