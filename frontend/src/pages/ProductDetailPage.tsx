@@ -192,14 +192,15 @@ export default function ProductDetailPage() {
 
                 <div>
                   <label className="input-label">支付方式</label>
-                  <select
-                    className="input"
-                    value={paymentMethod}
-                    onChange={e => setPaymentMethod(e.target.value)}
-                  >
-                    <option value="wechat">微信支付</option>
-                    <option value="alipay">支付宝</option>
-                  </select>
+                  <div className="payment-methods">
+                    <button
+                      type="button"
+                      className={`payment-btn ${paymentMethod === 'wechat' ? 'selected' : ''}`}
+                      onClick={() => setPaymentMethod('wechat')}
+                    >
+                      💚 微信支付
+                    </button>
+                  </div>
                 </div>
 
                 <button
