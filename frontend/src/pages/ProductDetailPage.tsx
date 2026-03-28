@@ -112,6 +112,14 @@ export default function ProductDetailPage() {
 
         {/* 商品信息卡片 */}
         <div className="card" style={{ padding: 'var(--space-xl)' }}>
+          {/* 商品大图 */}
+          {product.imageUrl && (
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className="product-detail-image"
+            />
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-md)' }}>
             <h1 style={{ fontSize: 'var(--font-size-xl)', margin: 0 }}>{product.name}</h1>
             {product.productType === 'service' && (

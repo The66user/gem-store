@@ -2,8 +2,8 @@
  * 管理后台 — 商品管理
  * 商品列表、创建商品、编辑商品
  */
-import { useState, useEffect, useCallback } from 'react';
-import { fetchAdminProducts, createProduct, updateProduct } from '../../services/api';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { fetchAdminProducts, createProduct, updateProduct, uploadImage } from '../../services/api';
 import type { Product } from '../../types';
 import AdminLayout from './AdminLayout';
 import CustomSelect from '../../components/CustomSelect';
@@ -22,6 +22,9 @@ function AdminProducts() {
   const [formPrice, setFormPrice] = useState('');
   const [formOriginal, setFormOriginal] = useState('');
   const [formType, setFormType] = useState<'digital' | 'service'>('digital');
+  const [formImageUrl, setFormImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -44,6 +47,7 @@ function AdminProducts() {
     setFormPrice('');
     setFormOriginal('');
     setFormType('digital');
+    setFormImageUrl('');
     setShowModal(true);
   }
 
@@ -55,6 +59,7 @@ function AdminProducts() {
     setFormPrice(String(p.price));
     setFormOriginal(p.originalPrice ? String(p.originalPrice) : '');
     setFormType(p.productType || 'digital');
+    setFormImageUrl(p.imageUrl || '');
     setShowModal(true);
   }
 
@@ -70,6 +75,7 @@ function AdminProducts() {
           price: Number(formPrice),
           originalPrice: formOriginal ? Number(formOriginal) : undefined,
           productType: formType,
+          imageUrl: formImageUrl,
         });
         setMsg('更新成功');
       } else {
@@ -80,6 +86,7 @@ function AdminProducts() {
           price: Number(formPrice),
           originalPrice: formOriginal ? Number(formOriginal) : undefined,
           productType: formType,
+          imageUrl: formImageUrl,
         });
         setMsg('创建成功');
       }
@@ -93,6 +100,21 @@ function AdminProducts() {
   async function toggleActive(p: Product) {
     await updateProduct(p.id, { isActive: !p.isActive } as Partial<Product>);
     loadProducts();
+  }
+
+  /** 处理图片上传 */
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const result = await uploadImage(file);
+      setFormImageUrl(result.url);
+    } catch (err: unknown) {
+      setMsg(err instanceof Error ? err.message : '上传失败');
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
@@ -191,6 +213,38 @@ function AdminProducts() {
                 <label>原价 (划线价)</label>
                 <input className="input" type="number" step="0.01" value={formOriginal}
                   onChange={e => setFormOriginal(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>商品图片</label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  style={{ display: 'none' }}
+                />
+                {formImageUrl ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                    <img
+                      src={formImageUrl}
+                      alt="预览"
+                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
+                    />
+                    <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                        {uploading ? '上传中...' : '更换'}
+                      </button>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => setFormImageUrl('')}>
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" className="btn btn-secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                    style={{ width: '100%' }}>
+                    {uploading ? '上传中...' : '📷 选择图片'}
+                  </button>
+                )}
               </div>
               <div className="modal-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消</button>

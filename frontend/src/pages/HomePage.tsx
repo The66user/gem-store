@@ -114,6 +114,15 @@ function HomePage() {
                   style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
                   onClick={() => navigate(`/product/${product.id}`)}
                 >
+                  {/* 商品图片 */}
+                  <div className="product-card-image-wrap">
+                    {product.imageUrl ? (
+                      <img src={product.imageUrl} alt={product.name} />
+                    ) : (
+                      <div className="product-card-image-placeholder">🛍️</div>
+                    )}
+                  </div>
+
                   <h3 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-sm)' }}>
                     {product.name}
                   </h3>

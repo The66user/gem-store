@@ -46,6 +46,15 @@ export default function ProductsPage() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div className="card card-glow product-card" style={{ cursor: 'pointer', transition: 'transform 0.2s' }}>
+                  {/* 商品图片 */}
+                  <div className="product-card-image-wrap">
+                    {product.imageUrl ? (
+                      <img src={product.imageUrl} alt={product.name} />
+                    ) : (
+                      <div className="product-card-image-placeholder">🛍️</div>
+                    )}
+                  </div>
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-sm)' }}>
                     <h3 style={{ fontSize: 'var(--font-size-lg)', margin: 0 }}>
                       {product.name}

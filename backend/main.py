@@ -3,13 +3,16 @@ The66Shop 后端主入口
 数字服务商店 - FastAPI 应用
 """
 import asyncio
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from config import settings
 from database import initDb, getDb, DATABASE_PATH
 from api_public import router as publicRouter
 from api_admin import router as adminRouter
+from upload import router as uploadRouter
 import repositories as repo
 import aiosqlite
 
@@ -81,6 +84,12 @@ app.add_middleware(
 # 注册路由
 app.include_router(publicRouter)
 app.include_router(adminRouter)
+app.include_router(uploadRouter)
+
+# 挂载上传文件静态目录
+UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.get("/", tags=["健康检查"])

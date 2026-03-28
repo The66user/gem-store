@@ -136,6 +136,29 @@ export function updateProduct(id: number, data: Partial<Product>): Promise<{ mes
   });
 }
 
+/**
+ * 上传图片文件
+ * NOTE: 不走通用 request，因为需要 FormData（非 JSON）
+ */
+export async function uploadImage(file: File): Promise<{ url: string; filename: string; size: number }> {
+  const token = localStorage.getItem('admin_token');
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_BASE}/api/admin/upload`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: '上传失败' }));
+    throw new Error(error.detail || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
 /** 批量导入卡密 */
 export function importCards(productId: number, cards: string[]): Promise<{ message: string }> {
   return request('/api/admin/cards/import', {
