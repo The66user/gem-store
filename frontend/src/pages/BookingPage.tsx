@@ -18,11 +18,9 @@ const SERVICE_TYPES = [
 
 function BookingPage() {
   const [form, setForm] = useState({
-    name: '',
     contact: '',
     serviceType: '',
     description: '',
-    preferredTime: '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -40,10 +38,6 @@ function BookingPage() {
   /** 提交预约表单 */
   const handleSubmit = async () => {
     // 基础校验
-    if (!form.name.trim()) {
-      setError('请输入您的姓名');
-      return;
-    }
     if (!form.contact.trim()) {
       setError('请输入联系方式');
       return;
@@ -97,7 +91,7 @@ function BookingPage() {
               </p>
               <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center' }}>
                 <Link to="/" className="btn btn-secondary">返回首页</Link>
-                <button className="btn btn-primary" onClick={() => { setSuccess(false); setForm({ name: '', contact: '', serviceType: '', description: '', preferredTime: '' }); }}>
+                <button className="btn btn-primary" onClick={() => { setSuccess(false); setForm({ contact: '', serviceType: '', description: '' }); }}>
                   继续预约
                 </button>
               </div>
@@ -117,18 +111,6 @@ function BookingPage() {
               )}
 
               <div className="card" style={{ padding: 'var(--space-xl)' }}>
-                <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
-                  <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xs)' }}>
-                    姓名 <span style={{ color: 'var(--color-danger)' }}>*</span>
-                  </label>
-                  <input
-                    className="input"
-                    placeholder="请输入您的姓名"
-                    value={form.name}
-                    onChange={e => handleChange('name', e.target.value)}
-                  />
-                </div>
-
                 <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
                   <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xs)' }}>
                     联系方式 <span style={{ color: 'var(--color-danger)' }}>*</span>
@@ -157,7 +139,7 @@ function BookingPage() {
                   </select>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
+                <div className="form-group" style={{ marginBottom: 'var(--space-xl)' }}>
                   <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xs)' }}>
                     需求描述
                   </label>
@@ -167,18 +149,6 @@ function BookingPage() {
                     value={form.description}
                     onChange={e => handleChange('description', e.target.value)}
                     rows={4}
-                  />
-                </div>
-
-                <div className="form-group" style={{ marginBottom: 'var(--space-xl)' }}>
-                  <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xs)' }}>
-                    期望服务时间
-                  </label>
-                  <input
-                    className="input"
-                    placeholder="例如：本周三下午、尽快开始"
-                    value={form.preferredTime}
-                    onChange={e => handleChange('preferredTime', e.target.value)}
                   />
                 </div>
 

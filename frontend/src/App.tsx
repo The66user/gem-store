@@ -4,6 +4,8 @@
  */
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderQueryPage from './pages/OrderQueryPage';
 import BookingPage from './pages/BookingPage';
@@ -20,6 +22,8 @@ function App() {
       <Routes>
         {/* 商城前台 */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/checkout/:productId" element={<CheckoutPage />} />
         <Route path="/order" element={<OrderQueryPage />} />
         <Route path="/booking" element={<BookingPage />} />

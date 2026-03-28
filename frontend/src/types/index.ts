@@ -7,9 +7,11 @@ export interface Product {
   id: number;
   name: string;
   description: string;
+  detailDescription: string;
   price: number;
   originalPrice: number | null;
   imageUrl: string;
+  productType: 'digital' | 'service';
   isActive: boolean;
   warrantyDays: number;
   warrantyTimes: number;
@@ -114,22 +116,18 @@ export const CARD_STATUS_MAP: Record<string, string> = {
 /** 服务预约 */
 export interface Booking {
   id: number;
-  name: string;
   contact: string;
   serviceType: string;
   description: string;
-  preferredTime: string;
   status: string;
   adminNote: string;
   createdAt: string | null;
 }
 
 export interface CreateBookingRequest {
-  name: string;
   contact: string;
   serviceType: string;
   description: string;
-  preferredTime: string;
 }
 
 /** 预约状态中文映射 */

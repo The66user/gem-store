@@ -51,11 +51,12 @@ async def getProductById(db: aiosqlite.Connection, productId: int) -> dict | Non
 async def createProduct(db: aiosqlite.Connection, data: dict) -> int:
     """创建商品，返回新商品 ID"""
     cursor = await db.execute(
-        """INSERT INTO products (name, description, price, original_price, image_url,
-            warranty_days, warranty_times)
-        VALUES (?, ?, ?, ?, ?, ?, ?)""",
-        (data["name"], data["description"], data["price"],
-         data.get("originalPrice"), data.get("imageUrl", ""),
+        """INSERT INTO products (name, description, detail_description, price, original_price,
+            image_url, product_type, warranty_days, warranty_times)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (data["name"], data["description"], data.get("detailDescription", ""),
+         data["price"], data.get("originalPrice"), data.get("imageUrl", ""),
+         data.get("productType", "digital"),
          data.get("warrantyDays", 7), data.get("warrantyTimes", 1))
     )
     await db.commit()
@@ -66,8 +67,10 @@ async def updateProduct(db: aiosqlite.Connection, productId: int, data: dict) ->
     """更新商品字段"""
     # 动态构建 SQL，仅更新非 None 字段
     fieldMap = {
-        "name": "name", "description": "description", "price": "price",
-        "originalPrice": "original_price", "imageUrl": "image_url",
+        "name": "name", "description": "description",
+        "detailDescription": "detail_description",
+        "price": "price", "originalPrice": "original_price",
+        "imageUrl": "image_url", "productType": "product_type",
         "isActive": "is_active", "warrantyDays": "warranty_days",
         "warrantyTimes": "warranty_times"
     }

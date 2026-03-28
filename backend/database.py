@@ -35,9 +35,11 @@ async def initDb():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             description TEXT NOT NULL DEFAULT '',
+            detail_description TEXT NOT NULL DEFAULT '',
             price REAL NOT NULL,
             original_price REAL,
             image_url TEXT DEFAULT '',
+            product_type TEXT NOT NULL DEFAULT 'digital',
             is_active INTEGER NOT NULL DEFAULT 1,
             warranty_days INTEGER NOT NULL DEFAULT 7,
             warranty_times INTEGER NOT NULL DEFAULT 1,
@@ -94,11 +96,9 @@ async def initDb():
 
         CREATE TABLE IF NOT EXISTS bookings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
             contact TEXT NOT NULL,
             service_type TEXT NOT NULL,
             description TEXT DEFAULT '',
-            preferred_time TEXT DEFAULT '',
             status TEXT NOT NULL DEFAULT 'pending',
             admin_note TEXT DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -111,6 +111,19 @@ async def initDb():
         CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
     """)
 
+    await db.commit()
+
+    # 数据库迁移：为已有表添加新字段
+    # NOTE: ALTER TABLE 在字段已存在时会报错，用 try/except 忽略
+    migrations = [
+        "ALTER TABLE products ADD COLUMN product_type TEXT NOT NULL DEFAULT 'digital'",
+        "ALTER TABLE products ADD COLUMN detail_description TEXT NOT NULL DEFAULT ''",
+    ]
+    for sql in migrations:
+        try:
+            await db.execute(sql)
+        except Exception:
+            pass
     await db.commit()
 
     # 检查是否需要创建默认管理员

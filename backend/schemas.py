@@ -12,10 +12,12 @@ from datetime import datetime
 class ProductBase(BaseModel):
     """商品基础字段"""
     name: str = Field(..., min_length=1, max_length=200, description="商品名称")
-    description: str = Field("", description="商品描述（Markdown）")
+    description: str = Field("", description="商品简介")
+    detailDescription: str = Field("", description="商品详情（长文本 Markdown）")
     price: float = Field(..., gt=0, description="售价（CNY）")
     originalPrice: Optional[float] = Field(None, ge=0, description="原价（划线价）")
     imageUrl: str = Field("", description="商品图片 URL")
+    productType: str = Field("digital", description="商品类型：digital（自动发卡）/ service（人工服务）")
     warrantyDays: int = Field(7, ge=0, description="质保天数")
     warrantyTimes: int = Field(1, ge=0, description="最大换新次数")
 
@@ -29,9 +31,11 @@ class ProductUpdate(BaseModel):
     """更新商品请求"""
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = None
+    detailDescription: Optional[str] = None
     price: Optional[float] = Field(None, gt=0)
     originalPrice: Optional[float] = Field(None, ge=0)
     imageUrl: Optional[str] = None
+    productType: Optional[str] = None
     isActive: Optional[bool] = None
     warrantyDays: Optional[int] = Field(None, ge=0)
     warrantyTimes: Optional[int] = Field(None, ge=0)
@@ -42,9 +46,11 @@ class ProductResponse(BaseModel):
     id: int
     name: str
     description: str
+    detailDescription: str = ""
     price: float
     originalPrice: Optional[float] = None
     imageUrl: str = ""
+    productType: str = "digital"
     isActive: bool = True
     warrantyDays: int = 7
     warrantyTimes: int = 1
@@ -158,21 +164,17 @@ class DashboardData(BaseModel):
 
 class BookingCreate(BaseModel):
     """创建服务预约请求"""
-    name: str = Field(..., min_length=1, max_length=50, description="预约人姓名")
     contact: str = Field(..., min_length=1, max_length=100, description="联系方式（微信/手机/邮箱）")
     serviceType: str = Field(..., min_length=1, max_length=100, description="服务类型")
     description: str = Field("", max_length=1000, description="需求描述")
-    preferredTime: str = Field("", max_length=100, description="期望服务时间")
 
 
 class BookingResponse(BaseModel):
     """服务预约响应"""
     id: int
-    name: str
     contact: str
     serviceType: str
     description: str = ""
-    preferredTime: str = ""
     status: str = "pending"
     adminNote: str = ""
     createdAt: Optional[str] = None

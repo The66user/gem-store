@@ -98,7 +98,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* 商品列表 */}
+      {/* 商品列表（预览） */}
       <section id="products" className="container">
         <h2 style={{ textAlign: 'center', fontSize: 'var(--font-size-xl)', marginBottom: 'var(--space-lg)' }}>
           在售商品
@@ -116,62 +116,77 @@ function HomePage() {
             </p>
           </div>
         ) : (
-          <div className="product-grid">
-            {products.map(product => (
-              <div key={product.id} className="card card-glow product-card">
-                <h3 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-sm)' }}>
-                  {product.name}
-                </h3>
-
-                <div className="product-price">
-                  <span className="price-current">¥{product.price.toFixed(2)}</span>
-                  {product.originalPrice && (
-                    <span className="price-original">¥{product.originalPrice.toFixed(2)}</span>
-                  )}
-                </div>
-
-                <p className="product-stock">
-                  {product.stockCount > 0 ? (
-                    <span className="badge badge-success">库存充足</span>
-                  ) : (
-                    <span className="badge badge-danger">暂时缺货</span>
-                  )}
-                </p>
-
-                <p style={{
-                  color: 'var(--color-text-secondary)',
-                  fontSize: 'var(--font-size-sm)',
-                  marginBottom: 'var(--space-md)',
-                  lineHeight: 1.6
-                }}>
-                  {product.description}
-                </p>
-
-                <div style={{
-                  display: 'flex',
-                  gap: 'var(--space-xs)',
-                  flexWrap: 'wrap',
-                  marginBottom: 'var(--space-md)'
-                }}>
-                  <span className="badge" style={{ background: 'var(--color-surface)' }}>
-                    📧 邮箱交付
-                  </span>
-                  <span className="badge" style={{ background: 'var(--color-surface)' }}>
-                    🛡️ {product.warrantyDays} 天质保
-                  </span>
-                </div>
-
-                <button
-                  className="btn btn-primary"
-                  style={{ width: '100%' }}
-                  disabled={product.stockCount === 0}
-                  onClick={() => navigate(`/checkout/${product.id}`)}
+          <>
+            <div className="product-grid">
+              {products.slice(0, 4).map(product => (
+                <div
+                  key={product.id}
+                  className="card card-glow product-card"
+                  style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
+                  onClick={() => navigate(`/product/${product.id}`)}
                 >
-                  {product.stockCount > 0 ? '立即购买' : '暂时缺货'}
+                  <h3 style={{ fontSize: 'var(--font-size-lg)', marginBottom: 'var(--space-sm)' }}>
+                    {product.name}
+                  </h3>
+
+                  <div className="product-price">
+                    <span className="price-current">¥{product.price.toFixed(2)}</span>
+                    {product.originalPrice && (
+                      <span className="price-original">¥{product.originalPrice.toFixed(2)}</span>
+                    )}
+                  </div>
+
+                  <p className="product-stock">
+                    {product.productType === 'service' ? (
+                      <span className="badge badge-success">可预约</span>
+                    ) : product.stockCount > 0 ? (
+                      <span className="badge badge-success">库存充足</span>
+                    ) : (
+                      <span className="badge badge-danger">暂时缺货</span>
+                    )}
+                  </p>
+
+                  <p style={{
+                    color: 'var(--color-text-secondary)',
+                    fontSize: 'var(--font-size-sm)',
+                    marginBottom: 'var(--space-md)',
+                    lineHeight: 1.6
+                  }}>
+                    {product.description}
+                  </p>
+
+                  <div className="btn btn-primary" style={{ width: '100%', textAlign: 'center' }}>
+                    查看详情
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 查看全部商品链接 */}
+            {products.length > 4 && (
+              <div style={{ textAlign: 'center', marginTop: 'var(--space-lg)' }}>
+                <button
+                  className="btn"
+                  style={{ border: '1px solid var(--color-accent)', color: 'var(--color-accent)', padding: '10px 32px' }}
+                  onClick={() => navigate('/products')}
+                >
+                  查看全部商品 →
                 </button>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* 商品不足 4 个也显示链接 */}
+            {products.length <= 4 && (
+              <div style={{ textAlign: 'center', marginTop: 'var(--space-lg)' }}>
+                <span
+                  style={{ color: 'var(--color-accent)', cursor: 'pointer', fontSize: 'var(--font-size-sm)' }}
+                  onClick={() => navigate('/products')}
+                >
+                  查看全部商品 →
+                </span>
+              </div>
+            )}
+          </>
         )}
       </section>
 

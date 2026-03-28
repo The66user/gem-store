@@ -25,7 +25,7 @@ async def createOrder(db: aiosqlite.Connection, productId: int,
     """
     创建订单的完整业务流程：
     1. 验证商品是否存在且上架
-    2. 检查库存是否充足
+    2. 数字商品检查库存，服务商品跳过库存检查
     3. 生成唯一订单号
     4. 创建订单记录
     """
@@ -35,10 +35,12 @@ async def createOrder(db: aiosqlite.Connection, productId: int,
     if not product["is_active"]:
         raise ValueError("商品已下架")
 
-    # 检查可用库存
-    availableCard = await repo.getAvailableCard(db, productId)
-    if not availableCard:
-        raise ValueError("该商品暂时缺货，请稍后再试")
+    # 数字商品需要检查卡密库存，服务商品跳过
+    isService = product.get("product_type", "digital") == "service"
+    if not isService:
+        availableCard = await repo.getAvailableCard(db, productId)
+        if not availableCard:
+            raise ValueError("该商品暂时缺货，请稍后再试")
 
     orderNo = generateOrderNo()
     orderData = {
@@ -61,12 +63,9 @@ async def createOrder(db: aiosqlite.Connection, productId: int,
 async def processPayment(db: aiosqlite.Connection, orderNo: str,
                           paymentId: str = "") -> dict | None:
     """
-    支付成功后的发卡流程：
-    1. 查找订单
-    2. 获取可用卡密
-    3. 标记卡密为已售
-    4. 更新订单状态为已发货
-    5. 返回卡密内容用于通知买家
+    支付成功后的处理流程：
+    - 数字商品：分配卡密 → 标记已售 → 更新订单
+    - 服务商品：直接标记订单完成（无卡密分配）
     """
     order = await repo.getOrderByNo(db, orderNo)
     if not order:
@@ -79,7 +78,21 @@ async def processPayment(db: aiosqlite.Connection, orderNo: str,
     if not product:
         return None
 
-    # 分配卡密
+    isService = product.get("product_type", "digital") == "service"
+
+    if isService:
+        # 服务商品：直接标记为已支付（无卡密）
+        await repo.updateOrderPaid(
+            db, orderNo, paymentId, None, product["warranty_days"]
+        )
+        return {
+            "orderNo": orderNo,
+            "buyerEmail": order["buyer_email"],
+            "productName": product["name"],
+            "isService": True
+        }
+
+    # 数字商品：分配卡密
     card = await repo.getAvailableCard(db, order["product_id"])
     if not card:
         # NOTE: 理论上下单时已检查库存，此处属于极端并发场景

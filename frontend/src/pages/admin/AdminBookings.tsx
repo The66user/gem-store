@@ -100,11 +100,9 @@ function AdminBookings() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>姓名</th>
                 <th>联系方式</th>
                 <th>服务类型</th>
                 <th>需求描述</th>
-                <th>期望时间</th>
                 <th>状态</th>
                 <th>备注</th>
                 <th>提交时间</th>
@@ -115,13 +113,11 @@ function AdminBookings() {
               {data.items.map(booking => (
                 <tr key={booking.id}>
                   <td>{booking.id}</td>
-                  <td>{booking.name}</td>
                   <td>{booking.contact}</td>
                   <td>{booking.serviceType}</td>
                   <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {booking.description || '-'}
                   </td>
-                  <td>{booking.preferredTime || '-'}</td>
                   <td>
                     <span className={getStatusBadgeClass(booking.status)}>
                       {BOOKING_STATUS_MAP[booking.status] || booking.status}
@@ -142,7 +138,7 @@ function AdminBookings() {
               ))}
               {data.items.length === 0 && (
                 <tr>
-                  <td colSpan={10} style={{ textAlign: 'center', padding: 'var(--space-xl)', color: 'var(--color-text-muted)' }}>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: 'var(--space-xl)', color: 'var(--color-text-muted)' }}>
                     暂无预约记录
                   </td>
                 </tr>
