@@ -3,7 +3,7 @@
  * 封装所有与后端的 HTTP 交互
  */
 import type {
-  Product, Order, DashboardData,
+  Product, ProductType, Order, DashboardData,
   PaginatedResponse, Card, WarrantyClaim,
   CreateOrderRequest, CreateOrderResponse,
   Booking, CreateBookingRequest
@@ -46,6 +46,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 /** 获取上架商品列表 */
 export function fetchProducts(): Promise<Product[]> {
   return request('/api/products');
+}
+
+/** 获取商品类型列表（公开） */
+export function fetchProductTypes(): Promise<ProductType[]> {
+  return request('/api/product-types');
 }
 
 /** 获取商品详情 */
@@ -113,6 +118,34 @@ export function adminLogout(): void {
 /** 获取仪表盘数据 */
 export function fetchDashboard(): Promise<DashboardData> {
   return request('/api/admin/dashboard');
+}
+
+/** 获取商品类型列表（管理端，含 id/sortOrder） */
+export function fetchAdminProductTypes(): Promise<ProductType[]> {
+  return request('/api/admin/product-types');
+}
+
+/** 创建商品类型 */
+export function createProductType(data: Partial<ProductType>): Promise<{ message: string }> {
+  return request('/api/admin/product-types', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** 更新商品类型 */
+export function updateProductType(id: number, data: Partial<ProductType>): Promise<{ message: string }> {
+  return request(`/api/admin/product-types/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/** 删除商品类型 */
+export function deleteProductType(id: number): Promise<{ message: string }> {
+  return request(`/api/admin/product-types/${id}`, {
+    method: 'DELETE',
+  });
 }
 
 /** 获取所有商品（管理端） */

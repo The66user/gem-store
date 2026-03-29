@@ -34,6 +34,7 @@ function AdminLayout({ children, title }: AdminLayoutProps) {
     { path: '/admin/cards', label: '📦 交付管理' },
     { path: '/admin/orders', label: '📋 订单管理' },
     { path: '/admin/bookings', label: '📅 预约管理' },
+    { path: '/admin/settings', label: '⚙️ 系统设置' },
   ];
 
   return (

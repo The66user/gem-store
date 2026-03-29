@@ -21,6 +21,22 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["公开接口"])
 
 
+# ========== 商品类型 ==========
+
+@router.get("/product-types")
+async def listProductTypes(db: aiosqlite.Connection = Depends(getDb)):
+    """获取所有商品类型（公开，前端展示用）"""
+    types = await repo.getAllProductTypes(db)
+    return [
+        {
+            "slug": t["slug"],
+            "name": t["name"],
+            "autoDeliver": bool(t["auto_deliver"]),
+        }
+        for t in types
+    ]
+
+
 # ========== 商品 ==========
 
 @router.get("/products", response_model=list[ProductResponse])

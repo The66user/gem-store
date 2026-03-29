@@ -3,6 +3,15 @@
  * 与后端 API 响应结构保持一致
  */
 
+/** 商品类型定义（数据库驱动，后台可管理） */
+export interface ProductType {
+  id?: number;
+  slug: string;
+  name: string;
+  autoDeliver: boolean;
+  sortOrder?: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -11,7 +20,8 @@ export interface Product {
   price: number;
   originalPrice: number | null;
   imageUrl: string;
-  productType: 'digital' | 'service';
+  // NOTE: 不再限定为 'digital' | 'service'，支持后台自定义类型
+  productType: string;
   isActive: boolean;
   warrantyDays: number;
   warrantyTimes: number;

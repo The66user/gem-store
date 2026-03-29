@@ -15,6 +15,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminCards from './pages/admin/AdminCards';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminBookings from './pages/admin/AdminBookings';
+import AdminSettings from './pages/admin/AdminSettings';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="/admin/cards" element={<AdminCards />} />
         <Route path="/admin/orders" element={<AdminOrders />} />
         <Route path="/admin/bookings" element={<AdminBookings />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>
   );

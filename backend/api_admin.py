@@ -125,6 +125,73 @@ async def updateProduct(
     return {"message": "商品更新成功", "success": True}
 
 
+# ========== 商品类型管理 ==========
+
+@router.get("/product-types")
+async def listProductTypes(
+    admin: dict = Depends(getCurrentAdmin),
+    db: aiosqlite.Connection = Depends(getDb)
+):
+    """获取所有商品类型"""
+    types = await repo.getAllProductTypes(db)
+    return [
+        {
+            "id": t["id"],
+            "slug": t["slug"],
+            "name": t["name"],
+            "autoDeliver": bool(t["auto_deliver"]),
+            "sortOrder": t["sort_order"],
+        }
+        for t in types
+    ]
+
+
+@router.post("/product-types", response_model=MessageResponse)
+async def createProductType(
+    data: dict,
+    admin: dict = Depends(getCurrentAdmin),
+    db: aiosqlite.Connection = Depends(getDb)
+):
+    """创建商品类型"""
+    if not data.get("slug") or not data.get("name"):
+        raise HTTPException(status_code=400, detail="slug 和 name 为必填")
+
+    # 检查 slug 是否已存在
+    existing = await repo.getProductTypeBySlug(db, data["slug"])
+    if existing:
+        raise HTTPException(status_code=400, detail=f"slug '{data['slug']}' 已存在")
+
+    typeId = await repo.createProductType(db, data)
+    return {"message": f"商品类型创建成功，ID: {typeId}", "success": True}
+
+
+@router.put("/product-types/{typeId}", response_model=MessageResponse)
+async def updateProductType(
+    typeId: int, data: dict,
+    admin: dict = Depends(getCurrentAdmin),
+    db: aiosqlite.Connection = Depends(getDb)
+):
+    """更新商品类型"""
+    await repo.updateProductType(db, typeId, data)
+    return {"message": "商品类型更新成功", "success": True}
+
+
+@router.delete("/product-types/{typeId}", response_model=MessageResponse)
+async def deleteProductType(
+    typeId: int,
+    admin: dict = Depends(getCurrentAdmin),
+    db: aiosqlite.Connection = Depends(getDb)
+):
+    """删除商品类型"""
+    try:
+        result = await repo.deleteProductType(db, typeId)
+        if not result:
+            raise HTTPException(status_code=404, detail="类型不存在")
+        return {"message": "商品类型已删除", "success": True}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 # ========== 库存管理 ==========
 
 @router.post("/cards/import", response_model=MessageResponse)

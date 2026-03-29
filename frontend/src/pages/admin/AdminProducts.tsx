@@ -3,8 +3,8 @@
  * 商品列表、创建商品、编辑商品
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { fetchAdminProducts, createProduct, updateProduct, uploadImage } from '../../services/api';
-import type { Product } from '../../types';
+import { fetchAdminProducts, createProduct, updateProduct, uploadImage, fetchAdminProductTypes } from '../../services/api';
+import type { Product, ProductType } from '../../types';
 import AdminLayout from './AdminLayout';
 import CustomSelect from '../../components/CustomSelect';
 
@@ -14,6 +14,7 @@ function AdminProducts() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [msg, setMsg] = useState('');
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
 
   // 表单状态
   const [formName, setFormName] = useState('');
@@ -21,7 +22,7 @@ function AdminProducts() {
   const [formDetail, setFormDetail] = useState('');
   const [formPrice, setFormPrice] = useState('');
   const [formOriginal, setFormOriginal] = useState('');
-  const [formType, setFormType] = useState<'digital' | 'service'>('digital');
+  const [formType, setFormType] = useState('digital');
   const [formImageUrl, setFormImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +40,11 @@ function AdminProducts() {
 
   useEffect(() => { loadProducts(); }, [loadProducts]);
 
+  // 加载商品类型
+  useEffect(() => {
+    fetchAdminProductTypes().then(setProductTypes).catch(console.error);
+  }, []);
+
   function openCreate() {
     setEditing(null);
     setFormName('');
@@ -46,7 +52,7 @@ function AdminProducts() {
     setFormDetail('');
     setFormPrice('');
     setFormOriginal('');
-    setFormType('digital');
+    setFormType(productTypes[0]?.slug || 'digital');
     setFormImageUrl('');
     setShowModal(true);
   }
@@ -150,7 +156,7 @@ function AdminProducts() {
                   <td>{p.name}</td>
                   <td>
                     <span className={`badge ${p.productType === 'service' ? 'badge-info' : 'badge-muted'}`}>
-                      {p.productType === 'service' ? '服务' : '数字'}
+                      {productTypes.find(t => t.slug === p.productType)?.name || p.productType}
                     </span>
                   </td>
                   <td>¥{p.price.toFixed(2)}</td>
@@ -184,12 +190,9 @@ function AdminProducts() {
               <div className="form-group">
                 <label>商品类型 *</label>
                 <CustomSelect
-                  options={[
-                    { value: 'digital', label: '数字商品（自动发卡）' },
-                    { value: 'service', label: '服务商品（人工处理）' },
-                  ]}
+                  options={productTypes.map(t => ({ value: t.slug, label: t.name }))}
                   value={formType}
-                  onChange={(val) => setFormType(val as 'digital' | 'service')}
+                  onChange={(val) => setFormType(val)}
                 />
               </div>
               <div className="form-group">

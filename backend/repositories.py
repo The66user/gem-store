@@ -94,6 +94,85 @@ async def updateProduct(db: aiosqlite.Connection, productId: int, data: dict) ->
     return True
 
 
+# ========== 商品类型 Repository ==========
+
+async def getAllProductTypes(db: aiosqlite.Connection) -> list[dict]:
+    """获取所有商品类型（按 sort_order 排序）"""
+    cursor = await db.execute(
+        "SELECT * FROM product_types ORDER BY sort_order ASC, id ASC"
+    )
+    rows = await cursor.fetchall()
+    return [dict(row) for row in rows]
+
+
+async def getProductTypeBySlug(db: aiosqlite.Connection, slug: str) -> dict | None:
+    """根据 slug 获取商品类型"""
+    cursor = await db.execute(
+        "SELECT * FROM product_types WHERE slug = ?", (slug,)
+    )
+    row = await cursor.fetchone()
+    return dict(row) if row else None
+
+
+async def createProductType(db: aiosqlite.Connection, data: dict) -> int:
+    """创建商品类型，返回新记录 ID"""
+    cursor = await db.execute(
+        """INSERT INTO product_types (slug, name, auto_deliver, sort_order)
+        VALUES (?, ?, ?, ?)""",
+        (data["slug"], data["name"],
+         1 if data.get("autoDeliver", False) else 0,
+         data.get("sortOrder", 0))
+    )
+    await db.commit()
+    return cursor.lastrowid
+
+
+async def updateProductType(db: aiosqlite.Connection, typeId: int, data: dict) -> bool:
+    """更新商品类型"""
+    fieldMap = {
+        "slug": "slug", "name": "name",
+        "autoDeliver": "auto_deliver", "sortOrder": "sort_order"
+    }
+    setClauses = []
+    values = []
+    for key, col in fieldMap.items():
+        if key in data and data[key] is not None:
+            val = data[key]
+            if isinstance(val, bool):
+                val = 1 if val else 0
+            setClauses.append(f"{col} = ?")
+            values.append(val)
+
+    if not setClauses:
+        return False
+
+    values.append(typeId)
+    sql = f"UPDATE product_types SET {', '.join(setClauses)} WHERE id = ?"
+    await db.execute(sql, values)
+    await db.commit()
+    return True
+
+
+async def deleteProductType(db: aiosqlite.Connection, typeId: int) -> bool:
+    """删除商品类型（如果有商品使用则不允许删除）"""
+    # 查出该类型的 slug，检查是否有商品在使用
+    cursor = await db.execute("SELECT slug FROM product_types WHERE id = ?", (typeId,))
+    row = await cursor.fetchone()
+    if not row:
+        return False
+
+    usageCursor = await db.execute(
+        "SELECT COUNT(*) as cnt FROM products WHERE product_type = ?", (row["slug"],)
+    )
+    usage = await usageCursor.fetchone()
+    if usage["cnt"] > 0:
+        raise ValueError(f"该类型下有 {usage['cnt']} 个商品，无法删除")
+
+    await db.execute("DELETE FROM product_types WHERE id = ?", (typeId,))
+    await db.commit()
+    return True
+
+
 # ========== 卡密 Repository ==========
 
 async def importCards(db: aiosqlite.Connection, productId: int, cards: list[str]) -> int:

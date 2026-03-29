@@ -109,6 +109,15 @@ async def initDb():
         CREATE INDEX IF NOT EXISTS idx_orders_order_no ON orders(order_no);
         CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
         CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+
+        CREATE TABLE IF NOT EXISTS product_types (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            auto_deliver INTEGER NOT NULL DEFAULT 0,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     """)
 
     await db.commit()
@@ -125,6 +134,20 @@ async def initDb():
         except Exception:
             pass
     await db.commit()
+
+    # 检查是否需要初始化商品类型
+    cursor = await db.execute("SELECT COUNT(*) as cnt FROM product_types")
+    row = await cursor.fetchone()
+    if row["cnt"] == 0:
+        await db.executemany(
+            "INSERT INTO product_types (slug, name, auto_deliver, sort_order) VALUES (?, ?, ?, ?)",
+            [
+                ("digital", "数字商品（自动发卡）", 1, 1),
+                ("service", "服务商品（人工处理）", 0, 2),
+            ]
+        )
+        await db.commit()
+        print("[初始化] 已创建预置商品类型")
 
     # 检查是否需要创建默认管理员
     cursor = await db.execute("SELECT COUNT(*) as cnt FROM admins")

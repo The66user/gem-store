@@ -35,9 +35,12 @@ async def createOrder(db: aiosqlite.Connection, productId: int,
     if not product["is_active"]:
         raise ValueError("商品已下架")
 
-    # 数字商品需要检查卡密库存，服务商品跳过
-    isService = product.get("product_type", "digital") == "service"
-    if not isService:
+    # 通过商品类型表查询是否自动发货
+    productType = await repo.getProductTypeBySlug(
+        db, product.get("product_type", "digital")
+    )
+    autoDeliver = productType["auto_deliver"] if productType else True
+    if autoDeliver:
         availableCard = await repo.getAvailableCard(db, productId)
         if not availableCard:
             raise ValueError("该商品暂时缺货，请稍后再试")
@@ -78,9 +81,13 @@ async def processPayment(db: aiosqlite.Connection, orderNo: str,
     if not product:
         return None
 
-    isService = product.get("product_type", "digital") == "service"
+    # 通过商品类型表查询是否自动发货
+    productType = await repo.getProductTypeBySlug(
+        db, product.get("product_type", "digital")
+    )
+    autoDeliver = productType["auto_deliver"] if productType else True
 
-    if isService:
+    if not autoDeliver:
         # 服务商品：直接标记为已支付（无卡密）
         await repo.updateOrderPaid(
             db, orderNo, paymentId, None, product["warranty_days"]
