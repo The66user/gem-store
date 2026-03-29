@@ -215,11 +215,11 @@ export async function uploadDeliveryFile(file: File): Promise<{ url: string; fil
   return res.json();
 }
 
-/** 导入文件类型交付内容 */
-export function importFileCard(productId: number, fileUrl: string): Promise<{ message: string }> {
-  return request('/api/admin/cards/import-file', {
+/** 导入单条交付内容（文本+文件任意组合） */
+export function importDeliveryItem(productId: number, content: string, fileUrl: string): Promise<{ message: string }> {
+  return request('/api/admin/cards/import-delivery', {
     method: 'POST',
-    body: JSON.stringify({ productId, fileUrl }),
+    body: JSON.stringify({ productId, content, fileUrl }),
   });
 }
 

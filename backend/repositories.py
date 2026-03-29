@@ -198,17 +198,31 @@ async def importCards(db: aiosqlite.Connection, productId: int,
     return count
 
 
-async def importFileCard(db: aiosqlite.Connection, productId: int,
-                         fileUrl: str) -> int:
+async def importDeliveryItem(db: aiosqlite.Connection, productId: int,
+                             content: str = "", fileUrl: str = "") -> int:
     """
-    导入单条文件类型交付内容
-    content 存储文件 URL，content_type = 'file'
+    导入单条交付内容，支持三种模式：
+    1. 纯文本：只有 content
+    2. 纯文件：只有 fileUrl
+    3. 文本+文件：两者都有
+    content_type 自动推断
     """
+    if not content and not fileUrl:
+        raise ValueError("content 和 fileUrl 至少需要一个")
+
+    # 自动推断 content_type
+    if content and fileUrl:
+        contentType = "mixed"
+    elif fileUrl:
+        contentType = "file"
+    else:
+        contentType = "text"
+
     quarantineUntil = datetime.utcnow() + timedelta(hours=settings.QUARANTINE_HOURS)
     cursor = await db.execute(
-        """INSERT INTO cards (product_id, content, content_type, status, quarantine_until)
-        VALUES (?, ?, 'file', 'quarantine', ?)""",
-        (productId, fileUrl, quarantineUntil.isoformat())
+        """INSERT INTO cards (product_id, content, content_type, file_url, status, quarantine_until)
+        VALUES (?, ?, ?, ?, 'quarantine', ?)""",
+        (productId, content, contentType, fileUrl, quarantineUntil.isoformat())
     )
     await db.commit()
     return cursor.lastrowid
@@ -305,7 +319,9 @@ async def getOrderByNo(db: aiosqlite.Connection, orderNo: str) -> dict | None:
         SELECT o.*, p.name as product_name,
                CASE WHEN o.status IN ('delivered', 'warranty_claimed', 'completed')
                     THEN c.content ELSE NULL END as card_content,
-               c.content_type as card_content_type
+               c.content_type as card_content_type,
+               CASE WHEN o.status IN ('delivered', 'warranty_claimed', 'completed')
+                    THEN c.file_url ELSE NULL END as card_file_url
         FROM orders o
         LEFT JOIN products p ON o.product_id = p.id
         LEFT JOIN cards c ON o.card_id = c.id
@@ -372,7 +388,9 @@ async def getOrdersByEmail(db: aiosqlite.Connection, email: str) -> list[dict]:
         SELECT o.*, p.name as product_name,
                CASE WHEN o.status IN ('delivered', 'warranty_claimed', 'completed')
                     THEN c.content ELSE NULL END as card_content,
-               c.content_type as card_content_type
+               c.content_type as card_content_type,
+               CASE WHEN o.status IN ('delivered', 'warranty_claimed', 'completed')
+                    THEN c.file_url ELSE NULL END as card_file_url
         FROM orders o
         LEFT JOIN products p ON o.product_id = p.id
         LEFT JOIN cards c ON o.card_id = c.id

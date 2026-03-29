@@ -128,6 +128,7 @@ async def initDb():
         "ALTER TABLE products ADD COLUMN product_type TEXT NOT NULL DEFAULT 'digital'",
         "ALTER TABLE products ADD COLUMN detail_description TEXT NOT NULL DEFAULT ''",
         "ALTER TABLE cards ADD COLUMN content_type TEXT NOT NULL DEFAULT 'text'",
+        "ALTER TABLE cards ADD COLUMN file_url TEXT DEFAULT ''",
     ]
     for sql in migrations:
         try:

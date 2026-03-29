@@ -36,8 +36,8 @@ export interface Order {
   productName: string;
   cardId: number | null;
   cardContent: string | null;
-  // NOTE: 区分文本交付和文件交付
-  contentType: 'text' | 'file';
+  contentType: 'text' | 'file' | 'mixed';
+  fileUrl: string;
   buyerEmail: string;
   amount: number;
   status: string;
@@ -52,8 +52,8 @@ export interface Card {
   id: number;
   productId: number;
   content: string;
-  // NOTE: 区分文本交付和文件交付
-  contentType: 'text' | 'file';
+  contentType: 'text' | 'file' | 'mixed';
+  fileUrl: string;
   status: string;
   quarantineUntil: string | null;
   createdAt: string | null;

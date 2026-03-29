@@ -118,6 +118,7 @@ async def processPayment(db: aiosqlite.Connection, orderNo: str,
         "orderNo": orderNo,
         "cardContent": card["content"],
         "contentType": card.get("content_type", "text"),
+        "fileUrl": card.get("file_url", ""),
         "buyerEmail": order["buyer_email"],
         "productName": product["name"],
         "warrantyDays": product["warranty_days"]
@@ -187,7 +188,8 @@ async def processWarrantyClaim(db: aiosqlite.Connection, orderNo: str,
 
 
 async def sendDeliveryEmail(buyerEmail: str, orderNo: str,
-                            cardContent: str, productName: str):
+                            cardContent: str, productName: str,
+                            fileUrl: str = ""):
     """
     发送自动发卡通知邮件
     如果 SMTP 未配置，则在控制台打印代替
@@ -197,7 +199,9 @@ async def sendDeliveryEmail(buyerEmail: str, orderNo: str,
         print(f"[发卡通知] 订单号: {orderNo}")
         print(f"[发卡通知] 买家邮箱: {buyerEmail}")
         print(f"[发卡通知] 商品: {productName}")
-        print(f"[发卡通知] 卡密内容: {cardContent}")
+        print(f"[发卡通知] 文本内容: {cardContent}")
+        if fileUrl:
+            print(f"[发卡通知] 文件: {fileUrl}")
         print(f"{'='*50}\n")
         return
 
@@ -211,6 +215,18 @@ async def sendDeliveryEmail(buyerEmail: str, orderNo: str,
         msg["To"] = buyerEmail
         msg["Subject"] = f"您的订单 {orderNo} 已发货 - {settings.APP_NAME}"
 
+        # 根据内容组合构建邮件展示
+        contentParts = []
+        if cardContent:
+            contentParts.append(
+                f'<p style="margin:10px 0;font-size:16px;color:#6c5ce7;word-break:break-all;"><code>{cardContent}</code></p>'
+            )
+        if fileUrl:
+            contentParts.append(
+                f'<p style="margin:10px 0;"><a href="{settings.SITE_URL}{fileUrl}" style="color:#6c5ce7;font-size:16px;">📄 点击下载文件</a></p>'
+            )
+        deliveryHtml = "".join(contentParts)
+
         htmlContent = f"""
         <div style="max-width:600px;margin:0 auto;font-family:'Segoe UI',sans-serif;background:#ffffff;color:#333;padding:30px;border-radius:12px;border:1px solid #eee;">
             <h1 style="color:#6c5ce7;text-align:center;font-size:22px;">🎉 订单发货成功</h1>
@@ -219,7 +235,7 @@ async def sendDeliveryEmail(buyerEmail: str, orderNo: str,
             <p><strong>商品：</strong>{productName}</p>
             <div style="background:#f8f7ff;padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid #6c5ce7;">
                 <p style="margin:0;font-size:14px;color:#888;">您的交付内容：</p>
-                {f'<p style="margin:10px 0;"><a href="{settings.SITE_URL}{cardContent}" style="color:#6c5ce7;font-size:16px;">📄 点击下载文件</a></p>' if cardContent.startswith('/uploads/') else f'<p style="margin:10px 0;font-size:16px;color:#6c5ce7;word-break:break-all;"><code>{cardContent}</code></p>'}
+                {deliveryHtml}
             </div>
             <p>⚠️ 请妥善保管您的交付内容。</p>
             <p>📋 本订单享有 <strong>7 天质保</strong>，期间如遇权益被撤销可免费换新一次。</p>

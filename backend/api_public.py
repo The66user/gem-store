@@ -107,7 +107,8 @@ async def mockPay(orderNo: str, db: aiosqlite.Connection = Depends(getDb)):
     if "cardContent" in result:
         await services.sendDeliveryEmail(
             result["buyerEmail"], result["orderNo"],
-            result["cardContent"], result["productName"]
+            result["cardContent"], result["productName"],
+            result.get("fileUrl", "")
         )
 
     return {
@@ -155,7 +156,8 @@ async def paymentNotify(request: Request, db: aiosqlite.Connection = Depends(get
     if result and "cardContent" in result:
         await services.sendDeliveryEmail(
             result["buyerEmail"], result["orderNo"],
-            result["cardContent"], result["productName"]
+            result["cardContent"], result["productName"],
+            result.get("fileUrl", "")
         )
         logger.info(f"[支付回调] 自动发卡成功: orderNo={orderNo}")
 
@@ -292,6 +294,7 @@ def _formatOrder(o: dict) -> dict:
         "cardId": o.get("card_id"),
         "cardContent": o.get("card_content"),
         "contentType": o.get("card_content_type", "text"),
+        "fileUrl": o.get("card_file_url", ""),
         "buyerEmail": o["buyer_email"],
         "amount": o["amount"],
         "status": o["status"],

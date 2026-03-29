@@ -217,29 +217,30 @@ async def importCards(
     }
 
 
-@router.post("/cards/import-file", response_model=MessageResponse)
-async def importFileCard(
+@router.post("/cards/import-delivery", response_model=MessageResponse)
+async def importDeliveryItem(
     data: dict,
     admin: dict = Depends(getCurrentAdmin),
     db: aiosqlite.Connection = Depends(getDb)
 ):
-    """导入文件类型交付内容"""
+    """导入单条交付内容（支持文本+文件任意组合）"""
     productId = data.get("productId")
-    fileUrl = data.get("fileUrl")
-    if not productId or not fileUrl:
-        raise HTTPException(status_code=400, detail="productId 和 fileUrl 为必填")
+    content = data.get("content", "")
+    fileUrl = data.get("fileUrl", "")
+    if not productId:
+        raise HTTPException(status_code=400, detail="productId 为必填")
+    if not content and not fileUrl:
+        raise HTTPException(status_code=400, detail="文本内容和文件至少填一个")
 
     product = await repo.getProductById(db, productId)
     if not product:
         raise HTTPException(status_code=404, detail="商品不存在")
 
-    cardId = await repo.importFileCard(db, productId, fileUrl)
-
-    # 释放过期隔离
+    cardId = await repo.importDeliveryItem(db, productId, content, fileUrl)
     await repo.releaseQuarantinedCards(db)
 
     return {
-        "message": f"文件交付内容已导入（ID: {cardId}）",
+        "message": f"交付内容已导入（ID: {cardId}）",
         "success": True
     }
 
@@ -367,6 +368,7 @@ def _formatCard(c: dict) -> dict:
         "productId": c["product_id"],
         "content": c["content"],
         "contentType": c.get("content_type", "text"),
+        "fileUrl": c.get("file_url", ""),
         "status": c["status"],
         "quarantineUntil": c.get("quarantine_until"),
         "createdAt": c.get("created_at"),

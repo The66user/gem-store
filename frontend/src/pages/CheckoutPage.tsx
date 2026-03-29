@@ -320,28 +320,17 @@ function CheckoutPage() {
               </div>
             </div>
 
-            {order.cardContent && (
+            {(order.cardContent || order.fileUrl) && (
               <div className="card-reveal" style={{ marginTop: 'var(--space-md)' }}>
                 <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
                   您的交付内容（请妥善保管）：
                 </p>
-                {order.contentType === 'file' ? (
-                  <>
-                    <a
-                      href={order.cardContent}
-                      download
-                      className="btn btn-primary btn-sm"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: 'var(--space-sm)' }}
-                    >
-                      📄 下载文件
-                    </a>
-                  </>
-                ) : (
-                  <>
+                {order.cardContent && (
+                  <div style={{ marginTop: 'var(--space-sm)' }}>
                     <code>{order.cardContent}</code>
                     <button
                       className="btn btn-secondary btn-sm"
-                      style={{ marginTop: 'var(--space-sm)' }}
+                      style={{ marginTop: 'var(--space-sm)', marginLeft: 'var(--space-sm)' }}
                       onClick={() => {
                         navigator.clipboard.writeText(order.cardContent || '');
                         setCopied(true);
@@ -350,7 +339,19 @@ function CheckoutPage() {
                     >
                       {copied ? '✅ 已复制' : '📋 复制'}
                     </button>
-                  </>
+                  </div>
+                )}
+                {order.fileUrl && (
+                  <div style={{ marginTop: 'var(--space-sm)' }}>
+                    <a
+                      href={order.fileUrl}
+                      download
+                      className="btn btn-primary btn-sm"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      📄 下载文件
+                    </a>
+                  </div>
                 )}
               </div>
             )}
