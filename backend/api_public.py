@@ -291,6 +291,7 @@ def _formatOrder(o: dict) -> dict:
         "productName": o.get("product_name", ""),
         "cardId": o.get("card_id"),
         "cardContent": o.get("card_content"),
+        "contentType": o.get("card_content_type", "text"),
         "buyerEmail": o["buyer_email"],
         "amount": o["amount"],
         "status": o["status"],

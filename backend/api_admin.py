@@ -200,19 +200,46 @@ async def importCards(
     admin: dict = Depends(getCurrentAdmin),
     db: aiosqlite.Connection = Depends(getDb)
 ):
-    """批量导入卡密"""
+    """批量导入交付内容（文本类型）"""
     # 验证商品存在
     product = await repo.getProductById(db, data.productId)
     if not product:
         raise HTTPException(status_code=404, detail="商品不存在")
 
-    count = await repo.importCards(db, data.productId, data.cards)
+    count = await repo.importCards(db, data.productId, data.cards, "text")
 
     # 同时释放已过隔离期的卡密
     released = await repo.releaseQuarantinedCards(db)
 
     return {
-        "message": f"成功导入 {count} 张卡密（隔离期 {settings.QUARANTINE_HOURS} 小时）。另有 {released} 张卡密已过隔离期并上架。",
+        "message": f"成功导入 {count} 条交付内容。另有 {released} 条已过隔离期并上架。",
+        "success": True
+    }
+
+
+@router.post("/cards/import-file", response_model=MessageResponse)
+async def importFileCard(
+    data: dict,
+    admin: dict = Depends(getCurrentAdmin),
+    db: aiosqlite.Connection = Depends(getDb)
+):
+    """导入文件类型交付内容"""
+    productId = data.get("productId")
+    fileUrl = data.get("fileUrl")
+    if not productId or not fileUrl:
+        raise HTTPException(status_code=400, detail="productId 和 fileUrl 为必填")
+
+    product = await repo.getProductById(db, productId)
+    if not product:
+        raise HTTPException(status_code=404, detail="商品不存在")
+
+    cardId = await repo.importFileCard(db, productId, fileUrl)
+
+    # 释放过期隔离
+    await repo.releaseQuarantinedCards(db)
+
+    return {
+        "message": f"文件交付内容已导入（ID: {cardId}）",
         "success": True
     }
 
@@ -339,6 +366,7 @@ def _formatCard(c: dict) -> dict:
         "id": c["id"],
         "productId": c["product_id"],
         "content": c["content"],
+        "contentType": c.get("content_type", "text"),
         "status": c["status"],
         "quarantineUntil": c.get("quarantine_until"),
         "createdAt": c.get("created_at"),

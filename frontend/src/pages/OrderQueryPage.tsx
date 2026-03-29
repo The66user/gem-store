@@ -297,20 +297,33 @@ function OrderQueryPage() {
               </div>
             </div>
 
-            {/* 卡密信息 */}
+            {/* 交付内容 */}
             {order.cardContent && (
               <div className="card-reveal" style={{ marginTop: 'var(--space-md)' }}>
                 <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
-                  您的账号信息：
+                  您的交付内容：
                 </p>
-                <code>{order.cardContent}</code>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  style={{ marginTop: 'var(--space-sm)' }}
-                  onClick={() => handleCopy(order.cardContent || '')}
-                >
-                  {copied ? '✅ 已复制' : '📋 复制'}
-                </button>
+                {order.contentType === 'file' ? (
+                  <a
+                    href={order.cardContent}
+                    download
+                    className="btn btn-primary btn-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: 'var(--space-sm)' }}
+                  >
+                    📄 下载文件
+                  </a>
+                ) : (
+                  <>
+                    <code>{order.cardContent}</code>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      style={{ marginTop: 'var(--space-sm)' }}
+                      onClick={() => handleCopy(order.cardContent || '')}
+                    >
+                      {copied ? '✅ 已复制' : '📋 复制'}
+                    </button>
+                  </>
+                )}
               </div>
             )}
 

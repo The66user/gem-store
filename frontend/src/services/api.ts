@@ -192,6 +192,37 @@ export async function uploadImage(file: File): Promise<{ url: string; filename: 
   return res.json();
 }
 
+/**
+ * 上传交付文件（文档、资料等）
+ * NOTE: 文件保存到 /uploads/files/ 目录
+ */
+export async function uploadDeliveryFile(file: File): Promise<{ url: string; filename: string; originalName: string; size: number }> {
+  const token = localStorage.getItem('admin_token');
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_BASE}/api/admin/upload-file`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: '上传失败' }));
+    throw new Error(error.detail || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}
+
+/** 导入文件类型交付内容 */
+export function importFileCard(productId: number, fileUrl: string): Promise<{ message: string }> {
+  return request('/api/admin/cards/import-file', {
+    method: 'POST',
+    body: JSON.stringify({ productId, fileUrl }),
+  });
+}
+
 /** 批量导入卡密 */
 export function importCards(productId: number, cards: string[]): Promise<{ message: string }> {
   return request('/api/admin/cards/import', {

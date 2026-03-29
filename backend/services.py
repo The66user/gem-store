@@ -117,6 +117,7 @@ async def processPayment(db: aiosqlite.Connection, orderNo: str,
     return {
         "orderNo": orderNo,
         "cardContent": card["content"],
+        "contentType": card.get("content_type", "text"),
         "buyerEmail": order["buyer_email"],
         "productName": product["name"],
         "warrantyDays": product["warranty_days"]
@@ -217,10 +218,10 @@ async def sendDeliveryEmail(buyerEmail: str, orderNo: str,
             <p><strong>订单号：</strong>{orderNo}</p>
             <p><strong>商品：</strong>{productName}</p>
             <div style="background:#f8f7ff;padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid #6c5ce7;">
-                <p style="margin:0;font-size:14px;color:#888;">您的账号信息：</p>
-                <p style="margin:10px 0;font-size:16px;color:#6c5ce7;word-break:break-all;"><code>{cardContent}</code></p>
+                <p style="margin:0;font-size:14px;color:#888;">您的交付内容：</p>
+                {f'<p style="margin:10px 0;"><a href="{settings.SITE_URL}{cardContent}" style="color:#6c5ce7;font-size:16px;">📄 点击下载文件</a></p>' if cardContent.startswith('/uploads/') else f'<p style="margin:10px 0;font-size:16px;color:#6c5ce7;word-break:break-all;"><code>{cardContent}</code></p>'}
             </div>
-            <p>⚠️ 请及时修改密码并妥善保管账号信息。</p>
+            <p>⚠️ 请妥善保管您的交付内容。</p>
             <p>📋 本订单享有 <strong>7 天质保</strong>，期间如遇权益被撤销可免费换新一次。</p>
             <hr style="border-color:#eee;">
             <p style="color:#999;font-size:12px;text-align:center;">此邮件由 {settings.APP_NAME} 系统自动发送</p>
